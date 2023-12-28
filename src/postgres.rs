@@ -2,12 +2,13 @@ use futures::TryStreamExt;
 use sqlx::{postgres::PgPoolOptions, Row};
 
 #[derive(Debug)]
-pub struct DBTable {
+pub struct PGTable {
     pub name: String,
     pub schema: String,
+    pub user_defined: bool,
 }
 
-pub async fn tables<'a>() -> Result<Vec<DBTable>, sqlx::Error> {
+pub async fn tables<'a>() -> Result<Vec<PGTable>, sqlx::Error> {
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect("postgres://postgres:admin@localhost")
@@ -33,9 +34,10 @@ pub async fn tables<'a>() -> Result<Vec<DBTable>, sqlx::Error> {
         .map_ok(|r| {
             let schema: &str = r.try_get("schema_name").unwrap();
             let table: &str = r.try_get("table_name").unwrap();
-            DBTable {
+            PGTable {
                 name: table.to_string(),
                 schema: schema.to_string(),
+                user_defined: schema != "information_schema" && schema != "pg_catalog", //todo: find real disctinction
             }
         })
         .try_collect()
