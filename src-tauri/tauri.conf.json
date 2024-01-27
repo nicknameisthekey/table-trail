@@ -54,11 +54,9 @@
     },
     "windows": [
       {
-        "fullscreen": false,
-        "height": 600,
+        "fullscreen": true,
         "resizable": true,
-        "title": "table-trail",
-        "width": 800
+        "title": "table-trail"
       }
     ]
   }
