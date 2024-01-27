@@ -3,22 +3,30 @@
 	import QueryResult from '$lib/QueryResult.svelte';
 	import DBExplorer from '../lib/DBExplorer.svelte';
 	import DbConnections from '$lib/DBConnections.svelte';
+	import { AppShell } from '@skeletonlabs/skeleton';
 
 	let showDbConnections = false;
 </script>
 
-<div class="container" style="max-height: 95vh;">
+<!-- <div class="container" style="max-height: 95vh;">
 	<button style="width: 20px; height:20px;" on:click={() => (showDbConnections = true)}>+</button>
 
 	<DbConnections bind:showDbConnections></DbConnections>
 	<DBExplorer />
 	<QueryEditor />
 	<QueryResult />
-</div>
+</div> -->
+
+
 
 <style>
 	.container {
 		display: flex;
 		gap: 10px;
+	}
+
+	html,
+	body {
+		@apply h-full overflow-hidden;
 	}
 </style>

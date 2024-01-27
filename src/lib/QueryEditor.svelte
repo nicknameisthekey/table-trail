@@ -45,7 +45,7 @@
 
 <div>
 	<div>
-		<button on:click={SendQuery}>SEND</button>
+		<button class="btn variant-filled btn-sm" on:click={SendQuery}>SEND</button>
 	</div>
 	<div class="container" bind:this={editorContainer} />
 </div>

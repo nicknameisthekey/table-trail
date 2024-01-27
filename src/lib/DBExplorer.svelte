@@ -29,7 +29,7 @@
 </script>
 
 <div>
-	<input bind:value={search} on:input={onSearch} placeholder="search" />
+	<input class="input" type="search" bind:value={search} on:input={onSearch} placeholder="Search..." />
 	<Box>
 		{#each dbObjectsFiltered as dbObj}
 			<div on:click={() => select100(dbObj)}>
