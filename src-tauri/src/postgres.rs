@@ -63,20 +63,20 @@ pub async fn send_query<'a>(query: String) -> Result<Vec<HashMap<String, String>
     let result: Vec<HashMap<String, String>> = rows
         .map_ok(|row| {
             let mut map = HashMap::new();
-            
+
             for column in row.columns() {
-                
                 let column_name = column.name();
 
                 let data_type = column.type_info();
                 let type_name = data_type.name();
-                println!("name: {}, type: {}",column_name, type_name);
+                println!("name: {}, type: {}", column_name, type_name);
 
                 let value = match type_name {
                     "VARCHAR" | "TEXT" | "NAME" => {
-                        let column_value: String = row.try_get(column_name).unwrap_or("".to_owned());
+                        let column_value: String =
+                            row.try_get(column_name).unwrap_or("".to_owned());
                         Some(column_value)
-                    },
+                    }
                     "INT8" => {
                         let column_value: i64 = row.try_get(column_name).unwrap();
                         Some(column_value.to_string())

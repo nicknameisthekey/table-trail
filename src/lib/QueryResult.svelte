@@ -1,9 +1,15 @@
 <script lang="ts">
-	import Box from './Box.svelte';
+	import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
+	import type { TableSource } from '@skeletonlabs/skeleton';
 	import { resultStore } from './store';
 	import { onMount } from 'svelte';
 
 	let data: Record<string, string>[] = [];
+	let headers: string[] = [];
+
+	onMount(async () => {
+		resultStore.subscribe((v) => OnResult(v));
+	});
 
 	const getUniqueKeys = (data: Record<string, string>[]): string[] => {
 		const keysSet = new Set<string>();
@@ -13,51 +19,29 @@
 		return Array.from(keysSet);
 	};
 
-	let keys: string[] = getUniqueKeys(data);
+	const emptyTable = {
+		head: [],
+		body: []
+	};
+	let tableSimple: TableSource = emptyTable;
 
-	onMount(async () => {
-		resultStore.subscribe((v) => OnResult(v));
-	});
+	function setTableSource(): TableSource {
+		return {
+			head: headers,
+			body: tableMapperValues(data, headers)
+		};
+	}
+
+	$: tableSimple = data ? setTableSource() : emptyTable;
 
 	function OnResult(newData: Record<string, string>[]) {
-		console.log('got new data');
 		data = newData;
-		keys = getUniqueKeys(data);
+		headers = getUniqueKeys(data);
+		console.log(headers);
+		console.log(data);
 	}
 </script>
 
-{#if keys.length>0}
-<Box>
-	<table style="width: 200px; height:200px;">
-		<thead>
-			<tr>
-				{#each keys as key}
-					<th>{key}</th>
-				{/each}
-			</tr>
-		</thead>
-		<tbody>
-			{#each data as row}
-				<tr>
-					{#each keys as key}
-						<td>{row[key]}</td>
-					{/each}
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-</Box>
+{#if data.length > 0}
+	<Table source={tableSimple} />
 {/if}
-
-<style>
-	th,
-	td {
-		border: 1px solid #dddddd;
-		text-align: left;
-		padding: 8px;
-	}
-
-	th {
-		background-color: #f2f2f2;
-	}
-</style>

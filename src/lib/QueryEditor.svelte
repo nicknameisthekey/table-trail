@@ -47,12 +47,5 @@
 	<div>
 		<button class="btn variant-filled btn-sm" on:click={SendQuery}>SEND</button>
 	</div>
-	<div class="container" bind:this={editorContainer} />
+	<div style="width: 500px;height: 250px;" bind:this={editorContainer} />
 </div>
-
-<style>
-	.container {
-		width: 500px;
-		height: 250px;
-	}
-</style>
