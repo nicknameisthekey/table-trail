@@ -4,12 +4,16 @@
 	import 'flowbite/dist/flowbite.min.css';
 	import { Modal } from 'flowbite-svelte';
 	import { CirclePlusOutline } from 'flowbite-svelte-icons';
+	import { invoke } from '@tauri-apps/api/tauri';
 
 	interface Connection {
-		id: number;
 		name: string;
+		host: string;
+		port: number;
+		username: string;
+		password: string;
+		database_type: string;
 		status: 'connected' | 'disconnected';
-		details: string;
 	}
 
 	//modal props
@@ -19,49 +23,40 @@
 	let host: string = '';
 	let port: number | null = null;
 	let password: string = '';
+	let username: string = '';
 
-	let connections: Connection[] = [
-		{
-			id: 1,
-			name: 'long long Connection 1',
-			status: 'connected',
-			details: 'Connection details 1'
-		},
-		{
-			id: 2,
-			name: 'Connection 2',
-			status: 'disconnected',
-			details: 'Connection details 2'
-		},
-		{
-			id: 3,
-			name: 'Connection 3',
-			status: 'connected',
-			details: 'Connection details 3'
-		}
-	];
+	let connections: Connection[] = [];
 
 	onMount(fetchConnections);
 
 	async function fetchConnections() {
-		//todo: fetch connections from backend
-	} 
+		connections = await invoke('connection_configs');
+		console.log(connections);
+	}
 
-	function AddConnection() {
-		connections = [
-			...connections,
-			{
-				id: connections.length + 1,
-				name: connectionName,
-				status: 'disconnected',
-				details: `Host: ${host}, Port: ${port}`
-			}
-		];
+	async function AddConnection() {
+		let config = {
+			name: connectionName,
+			host: host,
+			port: parseInt(port as any), 
+			username: username,
+			password: password,
+			database_type: 'Sqlite' //todo
+		};
 
-		password = '';
+		console.log(config);
+		await invoke('add_db_config', {
+			config: config
+		});
+
+		await fetchConnections();
+
 		connectionName = '';
 		host = '';
 		port = null;
+		username = '';
+		password = '';
+
 		modalOpened = false;
 		//todo save connection on backend
 	}
@@ -73,7 +68,7 @@
 </script>
 
 <div class="connections-sidebar h-screen bg-gray-500">
-	{#each connections as connection (connection.id)}
+	{#each connections as connection}
 		<div class="connection-container">
 			<Button
 				color="light"
@@ -112,12 +107,17 @@
 	</div>
 
 	<div class="mb-6">
+		<Label for="default-input" class="mb-2 block">Useraname</Label>
+		<Input bind:value={username} id="default-input" placeholder="Password" />
+	</div>
+
+	<div class="mb-6">
 		<Label for="default-input" class="mb-2 block">Password</Label>
 		<Input bind:value={password} id="default-input" placeholder="Password" />
 	</div>
 
 	<svelte:fragment slot="footer">
-		<Button on:click={AddConnection} class="w-1/2 mx-auto">Add</Button>
+		<Button on:click={AddConnection} class="mx-auto w-1/2">Add</Button>
 	</svelte:fragment>
 </Modal>
 
