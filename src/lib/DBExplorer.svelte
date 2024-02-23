@@ -2,7 +2,9 @@
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { onMount } from 'svelte';
 	import { queryStore } from './store';
-	import DBConnections from './DBConnections.svelte';
+	import { Listgroup, ListgroupItem } from 'flowbite-svelte';
+	import { Input, Label, Button } from 'flowbite-svelte';
+	import { SearchOutline } from 'flowbite-svelte-icons';
 
 	let dbObjects: string[] = [];
 	let dbObjectsFiltered: string[] = [];
@@ -28,34 +30,33 @@
 	}
 </script>
 
-
-<div class="flex">
-	<div class="sidebar">
-		<DBConnections />
+<div class="db-explorer h-screen">
+	<div class="db-explorer-search">
+		<Input on:input={onSearch} bind:value={search} id="search" placeholder="Search" size="lg">
+			<SearchOutline slot="right" class="h-6 w-6 text-gray-500 dark:text-gray-400 mx-2" />
+		</Input>
 	</div>
-	<div class="content">
-		<div style="width:15vw;margin:5px">
-			<input
-				class="input"
-				type="search"
-				placeholder="Search..."
-				style="width:12vw;height:30px;margin-left:5px;"
-				bind:value={search}
-				on:input={onSearch}
-			/>
-			<div class="card p-4" style="height:95vh; overflow:scroll; margin:5px">
-				<ul class="list">
-					{#each dbObjectsFiltered as dbObj}
-						<li>
-							<span
-								style="border-bottom: 1px dashed rgba(169, 169, 169, 0.2);"
-								on:click={() => select100(dbObj)}
-								class="flex-auto">{dbObj}</span
-							>
-						</li>
-					{/each}
-				</ul>
-			</div>
-		</div>
+
+	<div class="h-[90%] overflow-auto">
+		<Listgroup active>
+			{#each dbObjectsFiltered as dbObj}
+			<ListgroupItem on:click={() => select100(dbObj)} class="gap-2 text-base font-semibold">
+				{dbObj}
+			</ListgroupItem>
+			{/each}
+		</Listgroup>
 	</div>
 </div>
+
+<style>
+	.db-explorer {
+		width: 300px;	
+		min-width: 200px;
+		margin-right: 10px;	
+		overflow: scroll;
+	}
+
+	.db-explorer-search {
+		margin-bottom: 10px;
+	}
+</style>

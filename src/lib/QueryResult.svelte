@@ -1,8 +1,16 @@
 <script lang="ts">
-	import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
-	import type { TableSource } from '@skeletonlabs/skeleton';
 	import { resultStore } from './store';
 	import { onMount } from 'svelte';
+	import {
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		TableHead,
+		TableHeadCell,
+		Checkbox,
+		TableSearch
+	} from 'flowbite-svelte';
 
 	let data: Record<string, string>[] = [];
 	let headers: string[] = [];
@@ -19,29 +27,33 @@
 		return Array.from(keysSet);
 	};
 
-	const emptyTable = {
-		head: [],
-		body: []
-	};
-	let tableSimple: TableSource = emptyTable;
-
-	function setTableSource(): TableSource {
-		return {
-			head: headers,
-			body: tableMapperValues(data, headers)
-		};
-	}
-
-	$: tableSimple = data ? setTableSource() : emptyTable;
+	let flattenedData: string[][] = [];
 
 	function OnResult(newData: Record<string, string>[]) {
 		data = newData;
 		headers = getUniqueKeys(data);
+		flattenedData = data.map((item) => Object.values(item));
+
 		console.log(headers);
 		console.log(data);
 	}
 </script>
 
-{#if data.length > 0}
-	<Table source={tableSimple} />
-{/if}
+<div>
+	<Table>
+		<TableHead>
+			{#each headers as header}
+			<TableHeadCell>{header}</TableHeadCell>
+			{/each}
+		</TableHead>
+		<TableBody tableBodyClass="divide-y">
+			{#each flattenedData as row}
+			<TableBodyRow>
+				{#each row as cell}
+				<TableBodyCell>{cell}</TableBodyCell>
+				{/each}
+			</TableBodyRow>
+			{/each}
+		</TableBody>
+	</Table>
+</div>

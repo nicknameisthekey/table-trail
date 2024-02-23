@@ -3,6 +3,7 @@
 	import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 	import { queryStore, resultStore } from './store';
 	import { invoke } from '@tauri-apps/api/tauri';
+	import { Button } from 'flowbite-svelte';
 
 	let editor: Monaco.editor.IStandaloneCodeEditor;
 	let monaco: typeof Monaco;
@@ -14,7 +15,8 @@
 		uri = monaco.Uri.parse('model1');
 
 		editor = monaco.editor.create(editorContainer, {
-			minimap: { enabled: false }
+			minimap: { enabled: false},  theme: 'vs-dark',
+			automaticLayout: true
 		});
 		const model = monaco.editor.createModel('select * from ....', 'sql', uri);
 		editor.setModel(model);
@@ -43,9 +45,22 @@
 	}
 </script>
 
-<div>
-	<div>
-		<button class="btn variant-filled btn-sm" on:click={SendQuery}>SEND</button>
+<div class="query-editor h-screen">
+	<div class="text-right">
+		<Button class="btn variant-filled btn-sm mb-3" on:click={SendQuery}>SEND</Button>
 	</div>
-	<div style="width: 500px;height: 250px;" bind:this={editorContainer} />
+	<div class="monaco-editor min-h-[40vh] h-[90%]" bind:this={editorContainer} />
 </div>
+
+<style>
+	.query-editor {
+		max-width: 700px;
+		min-width: 300px;
+		margin-right: 10px;
+	}
+
+	.monaco-editor {
+		min-width: 400px;
+		width: 700px;
+	}
+</style>

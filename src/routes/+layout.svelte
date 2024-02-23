@@ -1,20 +1,24 @@
 <script lang="ts">
 	import '../app.pcss';
-	import { AppShell } from '@skeletonlabs/skeleton';
 	import DBExplorer from '$lib/DBExplorer.svelte';
 	import QueryEditor from '$lib/QueryEditor.svelte';
 	import QueryResult from '$lib/QueryResult.svelte';
-	import { initializeStores } from '@skeletonlabs/skeleton';
-	import AddDbConnection from '$lib/AddDBConnection.svelte';
-
-	initializeStores();
+	import DbConnections from '$lib/DBConnections.svelte';
+	import DbExplorer from '$lib/DBExplorer.svelte';
 </script>
 
-<AddDbConnection/>
-<AppShell>
-	<svelte:fragment slot="sidebarLeft"><DBExplorer /></svelte:fragment>
-	<svelte:fragment slot="sidebarRight"><QueryResult /></svelte:fragment>
-	<slot />
+<div class="main-window bg-gray-500">
+	<DbConnections />
+	<DbExplorer />
 	<QueryEditor />
-	<svelte:fragment slot="pageFooter">Page Footer</svelte:fragment>
-</AppShell>
+	<QueryResult />
+</div>
+
+<style>
+	.main-window {
+		display: flex;
+		align-items: flex-start;
+		flex-direction: row;
+		padding-top: 6px;
+	}
+</style>
