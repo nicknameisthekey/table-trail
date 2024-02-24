@@ -1,87 +1,82 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Button, Input, Label } from 'flowbite-svelte';
+	import { Button, Input, Label, P } from 'flowbite-svelte';
 	import 'flowbite/dist/flowbite.min.css';
 	import { Modal } from 'flowbite-svelte';
 	import { CirclePlusOutline } from 'flowbite-svelte-icons';
 	import { invoke } from '@tauri-apps/api/tauri';
 
-	interface Connection {
+	type ConnectionProfile = {
+		params: ConnectionParams;
+		connected: boolean;
+	};
+	
+	type ConnectionParams = {
 		name: string;
 		host: string;
-		port: number;
-		username: string;
-		password: string;
+		port: number | null;
+		username: string | null;
+		password: string | null;
 		database_type: string;
-		status: 'connected' | 'disconnected';
-	}
+	};
 
-	//modal props
 	let modalOpened = false;
 
-	let connectionName: string = '';
-	let host: string = '';
-	let port: number | null = null;
-	let password: string = '';
-	let username: string = '';
+	const emptyModalState: ConnectionProfile = {
+		params: {
+			host: '',
+			port: null,
+			username: null,
+			password: null
+		},
+		name: '',
+		database_type: 'sqlite',
+		connected: false
+	};
 
-	let connections: Connection[] = [];
+	let addProfileModalState: ConnectionProfile = emptyModalState;
 
-	onMount(fetchConnections);
+	let profiles: ConnectionProfile[] = [];
 
-	async function fetchConnections() {
-		connections = await invoke('connection_configs');
-		console.log(connections);
+	onMount(fetchProfiles);
+
+	async function fetchProfiles() {
+		profiles = await invoke('connection_profiles');
+		console.log('[fetching profiles]', profiles);
 	}
 
-	async function AddConnection() {
-		let config = {
-			name: connectionName,
-			host: host,
-			port: parseInt(port as any), 
-			username: username,
-			password: password,
-			database_type: 'Sqlite' //todo
-		};
-
-		console.log(config);
-		await invoke('add_db_config', {
-			config: config
+	async function addProfile() {
+		addProfileModalState.params.database_type = 'sqlite'; //todo: change to list
+		await invoke('add_profile', {
+			profile: addProfileModalState
 		});
 
-		await fetchConnections();
-
-		connectionName = '';
-		host = '';
-		port = null;
-		username = '';
-		password = '';
-
+		addProfileModalState = emptyModalState;
 		modalOpened = false;
-		//todo save connection on backend
+
+		await fetchProfiles();
 	}
 
-	function onConnectionClick(connection: Connection) {
-		console.log(connection);
-		//todo change connection
+	function onProfileClick(profile: ConnectionProfile) {
+		console.log(profile);
 	}
 </script>
 
-<div class="connections-sidebar h-screen bg-gray-500">
-	{#each connections as connection}
-		<div class="connection-container">
+<div class="profiles-sidebar h-screen bg-gray-500">
+	{#each profiles as profile}
+		<div class="profile-container">
 			<Button
-				color="light"
+				color="{profile.connected ? 'green' : 'red'}"
 				size="xs"
 				class="h-20 w-80"
-				on:click={() => onConnectionClick(connection)}
+				on:click={() => onProfileClick(profile)}
 			>
-				{connection.name}
+				{profile.params.name}
 			</Button>
 		</div>
 	{/each}
 
-	<div class="connection-container">
+	<div class="profile-container">
 		<Button color="light" size="xs" class="h-20 w-80" on:click={() => (modalOpened = true)}>
 			<CirclePlusOutline
 				class="h-12 w-12 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -90,46 +85,46 @@
 	</div>
 </div>
 
-<Modal title="Add connection" bind:open={modalOpened} autoclose>
+<Modal title="Add profile" bind:open={modalOpened} autoclose>
 	<div class="mb-6">
 		<Label for="default-input" class="mb-2 block">Name</Label>
-		<Input bind:value={connectionName} id="default-input" placeholder="Connection name" />
+		<Input bind:value={addProfileModalState.params.name} id="default-input" placeholder="Connection name" />
 	</div>
 
 	<div class="mb-6">
 		<Label for="default-input" class="mb-2 block">Host</Label>
-		<Input bind:value={host} id="default-input" placeholder="localhost" />
+		<Input bind:value={addProfileModalState.params.host} id="default-input" placeholder="localhost" />
 	</div>
 
 	<div class="mb-6">
 		<Label for="default-input" class="mb-2 block">Port</Label>
-		<Input bind:value={port} id="default-input" placeholder="5555" />
+		<Input bind:value={addProfileModalState.params.port} id="default-input" placeholder="5555" />
 	</div>
 
 	<div class="mb-6">
 		<Label for="default-input" class="mb-2 block">Useraname</Label>
-		<Input bind:value={username} id="default-input" placeholder="Password" />
+		<Input bind:value={addProfileModalState.params.username} id="default-input" placeholder="Password" />
 	</div>
 
 	<div class="mb-6">
 		<Label for="default-input" class="mb-2 block">Password</Label>
-		<Input bind:value={password} id="default-input" placeholder="Password" />
+		<Input bind:value={addProfileModalState.params.password} id="default-input" placeholder="Password" />
 	</div>
 
 	<svelte:fragment slot="footer">
-		<Button on:click={AddConnection} class="mx-auto w-1/2">Add</Button>
+		<Button on:click={addProfile} class="mx-auto w-1/2">Add</Button>
 	</svelte:fragment>
 </Modal>
 
 <style>
-	.connections-sidebar {
+	.profiles-sidebar {
 		width: 120px;
 		margin-right: 10px;
 		padding-right: 5px;
 		border-right: solid 1px black;
 	}
 
-	.connection-container {
+	.profile-container {
 		display: flex;
 		flex-direction: row;
 		align-items: center;

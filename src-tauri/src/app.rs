@@ -4,10 +4,9 @@ use std::env;
 use std::fs;
 use std::sync::Arc;
 
-use crate::db_config::DatabaseConfig;
-
 pub struct App {
-    config_pool: Arc<sqlx::Pool<Sqlite>>,
+    app_config: Arc<sqlx::Pool<Sqlite>>,
+    connected_profiles: Vec<i64>,
 }
 
 impl App {
@@ -17,7 +16,8 @@ impl App {
         let config_pool = Self::init_config_db(&config_path).await;
 
         App {
-            config_pool: Arc::new(config_pool),
+            app_config: Arc::new(config_pool),
+            connected_profiles: vec![],
         }
     }
 
@@ -35,14 +35,14 @@ impl App {
 
         let _ = sqlx::query(
             r#"
-            CREATE TABLE IF NOT EXISTS database_configs (
+            CREATE TABLE IF NOT EXISTS connection_params (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 host TEXT NOT NULL,
-                port INTEGER NOT NULL,
+                port TEXT NOT NULL,
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
-                database_type INTEGER NOT NULL
+                database_type TEXT NOT NULL
             )
             "#,
         )
@@ -52,51 +52,61 @@ impl App {
         pool
     }
 
-    pub async fn add_db_config(&self, config: DatabaseConfig) {
-        let pool = Arc::clone(&self.config_pool);
+    pub async fn add_profile(&self, profile: crate::front_models::ConnectionProfile) {
+        let pool = Arc::clone(&self.app_config);
 
         let r = sqlx::query(
             r#"
-            INSERT INTO database_configs (name, host, port, username, password, database_type)
+            INSERT INTO connection_params (name, host, port, username, password, database_type)
             VALUES (?, ?, ?, ?, ?, ?)
             "#,
         )
-        .bind(config.name)
-        .bind(config.host)
-        .bind(config.port)
-        .bind(config.username)
-        .bind(config.password)
-        .bind(config.database_type as i8)
+        .bind(profile.params.name)
+        .bind(profile.params.host)
+        .bind(profile.params.port)
+        .bind(profile.params.username)
+        .bind(profile.params.password)
+        .bind(profile.params.database_type)
         .execute(&*pool)
         .await;
 
         r.unwrap();
     }
 
-    pub async fn db_configs(&self) -> Vec<DatabaseConfig> {
-        let pool = Arc::clone(&self.config_pool);
+    pub async fn connection_profiles(&self) -> Vec<crate::front_models::ConnectionProfile> {
+        let pool = Arc::clone(&self.app_config);
 
-        let rows: Vec<(i64, String, String, i64, String, String, i8)> = sqlx::query_as("SELECT * FROM database_configs")
-            .fetch_all(&*pool)
-            .await
-            .unwrap();
+        let rows: Vec<(i64, String, String, String, String, String, String)> =
+            sqlx::query_as("SELECT * FROM connection_params")
+                .fetch_all(&*pool)
+                .await
+                .unwrap();
 
-        let configs: Vec<DatabaseConfig> = rows
+        let conn_params: Vec<crate::app_config::ConnectionParams> = rows
             .into_iter()
             .map(|row| {
                 let (id, name, host, port, username, password, database_type) = row;
-                DatabaseConfig::new(
+                crate::app_config::ConnectionParams {
+                    id,
                     name,
                     host,
                     port,
                     username,
                     password,
-                    crate::db_config::DatabaseType::from_i8(database_type),
-                )
+                    database_type,
+                }
             })
             .collect();
 
-        configs
+        let result = conn_params
+            .into_iter()
+            .map(move |c| {
+                let connected = self.connected_profiles.contains(&c.id);
+                crate::front_models::ConnectionProfile::from(c, connected)
+            })
+            .collect();
+
+        result
     }
 }
 
@@ -107,14 +117,5 @@ mod tests {
     #[async_std::test]
     async fn adding_connection() {
         let app = App::new().await;
-        app.add_db_config(DatabaseConfig::new(
-            "test".to_string(),
-            "localhost".to_string(),
-            5432,
-            "test".to_string(),
-            "test".to_string(),
-            crate::db_config::DatabaseType::Postgres,
-        )).await;
-
     }
 }
