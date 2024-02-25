@@ -44,7 +44,7 @@
 		resultStore.set(result);
 	}
 </script>
-
+<!-- todo: wrap every editor and result in tabs  -->
 <div class="query-editor h-screen">
 	<div class="text-right">
 		<Button class="btn variant-filled btn-sm mb-3" on:click={SendQuery}>SEND</Button>

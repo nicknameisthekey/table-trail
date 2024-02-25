@@ -7,8 +7,9 @@ use async_std::task;
 
 mod app;
 mod app_config;
-mod postgres;
 mod front_models;
+mod postgres;
+mod sqlite;
 
 #[tauri::command]
 fn tables() -> Vec<String> {
@@ -31,7 +32,8 @@ fn main() {
             tables,
             send_query,
             app_config::connection_profiles,
-            app_config::add_profile
+            app_config::add_profile,
+            app::db_objects
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

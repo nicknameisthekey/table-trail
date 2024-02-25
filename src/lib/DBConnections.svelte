@@ -5,8 +5,10 @@
 	import { Modal } from 'flowbite-svelte';
 	import { CirclePlusOutline } from 'flowbite-svelte-icons';
 	import { invoke } from '@tauri-apps/api/tauri';
+	import { chosenProfile } from './store';
 
 	type ConnectionProfile = {
+		id: number;
 		params: ConnectionParams;
 		connected: boolean;
 	};
@@ -24,13 +26,14 @@
 
 	const emptyModalState: ConnectionProfile = {
 		params: {
+			name: '',
 			host: '',
 			port: null,
 			username: null,
-			password: null
+			password: null,
+			database_type: 'sqlite'
 		},
-		name: '',
-		database_type: 'sqlite',
+		id: 0,
 		connected: false
 	};
 
@@ -58,7 +61,8 @@
 	}
 
 	function onProfileClick(profile: ConnectionProfile) {
-		console.log(profile);
+		console.log('clicked on profile ', profile);
+		chosenProfile.set(profile.id);
 	}
 </script>
 

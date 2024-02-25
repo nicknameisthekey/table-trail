@@ -1,8 +1,7 @@
+use crate::App;
+use crate::front_models;
 use serde::{Deserialize, Serialize};
 use tauri::State;
-use crate::App;
-
-use crate::front_models;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConnectionParams {
@@ -16,13 +15,18 @@ pub struct ConnectionParams {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn connection_profiles(app: State<'_, App>) -> Result<Vec<front_models::ConnectionProfile>, ()> {
+pub async fn connection_profiles(
+    app: State<'_, App>,
+) -> Result<Vec<front_models::ConnectionProfile>, ()> {
     let configs = app.connection_profiles().await;
     Ok(configs)
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn add_profile(app: State<'_, App>, profile: front_models::ConnectionProfile) -> Result<(), ()> {
+pub async fn add_profile(
+    app: State<'_, App>,
+    profile: front_models::ConnectionProfile,
+) -> Result<(), ()> {
     app.add_profile(profile).await;
     Ok(())
 }

@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct ConnectionProfile {
     pub params: ConnectionParams,
     pub connected: bool,
+    pub id: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -27,7 +28,19 @@ impl ConnectionProfile {
                 username: conn_params.username,
                 password: conn_params.password,
             },
+            id: conn_params.id,
             connected: connected,
         }
     }
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct DbObjects {
+    pub tables: Vec<Table>,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct Table {
+    pub name: String,
+    pub schema: String,
 }
