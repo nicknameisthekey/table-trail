@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Button, Input, Label, P } from 'flowbite-svelte';
+	import { Button, Input, Label, P, Select } from 'flowbite-svelte';
 	import 'flowbite/dist/flowbite.min.css';
 	import { Modal } from 'flowbite-svelte';
 	import { CirclePlusOutline } from 'flowbite-svelte-icons';
@@ -12,17 +12,22 @@
 		params: ConnectionParams;
 		connected: boolean;
 	};
-	
+
 	type ConnectionParams = {
 		name: string;
 		host: string;
-		port: number | null;
+		port: string | null;
 		username: string | null;
 		password: string | null;
 		database_type: string;
 	};
 
 	let modalOpened = false;
+
+	let databaseTypes = [
+		{ value: 'sqlite', name: 'Sqlite' },
+		{ value: 'postgres', name: 'Postgres' }
+	];
 
 	const emptyModalState: ConnectionProfile = {
 		params: {
@@ -49,7 +54,13 @@
 	}
 
 	async function addProfile() {
-		addProfileModalState.params.database_type = 'sqlite'; //todo: change to list
+		if (addProfileModalState.params.database_type === 'sqlite') {
+			addProfileModalState.params.port = '0';
+			addProfileModalState.params.username = '';
+			addProfileModalState.params.password = '';
+		}
+
+		console.log('adding profile', addProfileModalState);
 		await invoke('add_profile', {
 			profile: addProfileModalState
 		});
@@ -70,7 +81,7 @@
 	{#each profiles as profile}
 		<div class="profile-container">
 			<Button
-				color="{profile.connected ? 'green' : 'red'}"
+				color={profile.connected ? 'green' : 'red'}
 				size="xs"
 				class="h-20 w-80"
 				on:click={() => onProfileClick(profile)}
@@ -90,31 +101,67 @@
 </div>
 
 <Modal title="Add profile" bind:open={modalOpened} autoclose>
+	<Select id="countries" class="mt-2" bind:value={addProfileModalState.params.database_type}>
+		<option selected value={addProfileModalState.params.database_type}
+			>{addProfileModalState.params.database_type}</option
+		>
+
+		{#each databaseTypes as { value, name }}
+			<option {value}>{name}</option>
+		{/each}
+	</Select>
+
 	<div class="mb-6">
 		<Label for="default-input" class="mb-2 block">Name</Label>
-		<Input bind:value={addProfileModalState.params.name} id="default-input" placeholder="Connection name" />
+		<Input
+			bind:value={addProfileModalState.params.name}
+			id="default-input"
+			placeholder="Connection name"
+		/>
 	</div>
 
 	<div class="mb-6">
-		<Label for="default-input" class="mb-2 block">Host</Label>
-		<Input bind:value={addProfileModalState.params.host} id="default-input" placeholder="localhost" />
+		{#if addProfileModalState.params.database_type === 'sqlite'}
+			<Label for="default-input" class="mb-2 block">Db file</Label>
+			<Input
+				bind:value={addProfileModalState.params.host}
+				id="default-input"
+				placeholder="/path/to/sqlite.db"
+			/>
+		{:else}
+			<Label for="default-input" class="mb-2 block">Host</Label>
+			<Input
+				bind:value={addProfileModalState.params.host}
+				id="default-input"
+				placeholder="localhost"
+			/>
+		{/if}
 	</div>
 
-	<div class="mb-6">
-		<Label for="default-input" class="mb-2 block">Port</Label>
-		<Input bind:value={addProfileModalState.params.port} id="default-input" placeholder="5555" />
-	</div>
+	{#if addProfileModalState.params.database_type != 'sqlite'}
+		<div class="mb-6">
+			<Label for="default-input" class="mb-2 block">Port</Label>
+			<Input bind:value={addProfileModalState.params.port} id="default-input" placeholder="5555" />
+		</div>
 
-	<div class="mb-6">
-		<Label for="default-input" class="mb-2 block">Useraname</Label>
-		<Input bind:value={addProfileModalState.params.username} id="default-input" placeholder="Password" />
-	</div>
+		<div class="mb-6">
+			<Label for="default-input" class="mb-2 block">Useraname</Label>
+			<Input
+				bind:value={addProfileModalState.params.username}
+				id="default-input"
+				placeholder="Password"
+			/>
+		</div>
 
-	<div class="mb-6">
-		<Label for="default-input" class="mb-2 block">Password</Label>
-		<Input bind:value={addProfileModalState.params.password} id="default-input" placeholder="Password" />
-	</div>
-
+		<div class="mb-6">
+			<Label for="default-input" class="mb-2 block">Password</Label>
+			<Input
+				bind:value={addProfileModalState.params.password}
+				id="default-input"
+				placeholder="Password"
+			/>
+		</div>
+	{/if}
 	<svelte:fragment slot="footer">
 		<Button on:click={addProfile} class="mx-auto w-1/2">Add</Button>
 	</svelte:fragment>
