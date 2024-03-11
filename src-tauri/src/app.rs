@@ -34,6 +34,21 @@ pub async fn db_objects(
     Ok(result)
 }
 
+#[tauri::command(rename_all = "snake_case")]
+pub async fn send_query(
+    app: tauri::State<'_, App>,
+    query: String,
+    profile_id: i64,
+) -> Result<crate::front_models::QueryResult, ()> {
+    let conn_params = app.connection_params(profile_id).await;
+    let result = match conn_params.database_type.as_str() {
+        "sqlite" => crate::sqlite::query(conn_params, query).await,
+        _ => todo!(),
+    };
+
+    Ok(result)
+}
+
 impl App {
     pub async fn new() -> Self {
         let home_path = env::var("HOME").unwrap();
@@ -163,6 +178,6 @@ mod tests {
 
     #[async_std::test]
     async fn adding_connection() {
-        let app = App::new().await;
+        let _app = App::new().await;
     }
 }

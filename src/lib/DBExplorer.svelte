@@ -4,7 +4,7 @@
 	import { queryStore, chosenProfile } from './store';
 	import { Listgroup, ListgroupItem } from 'flowbite-svelte';
 	import { Input, Label, Button } from 'flowbite-svelte';
-	import { SearchOutline } from 'flowbite-svelte-icons';
+	import { TableRowOutline } from 'flowbite-svelte-icons';
 
 	type DbObjects = {
 		tables: Table[];
@@ -41,35 +41,60 @@
 		console.log('send ' + query);
 		queryStore.set(query);
 	}
+
+	let contextMenuVisible = false;
+	let contextMenuX = 0;
+	let contextMenuY = 0;
+
+	function handleRightClick(event: any) {
+		console.log('right click');
+		event.preventDefault(); // prevent the browser's default context menu from appearing
+
+		contextMenuVisible = true;
+		contextMenuX = event.clientX;
+		contextMenuY = event.clientY;
+	}
+
+	function hideContextMenu() {
+		contextMenuVisible = false;
+	}
 </script>
 
-<div class="db-explorer h-screen">
-	<div class="db-explorer-search">
-		<Input on:input={onSearch} bind:value={search} id="search" placeholder="Search" size="lg">
-			<SearchOutline slot="right" class="mx-2 h-6 w-6 text-gray-500 dark:text-gray-400" />
-		</Input>
+<div class="h-screen w-64 overflow-scroll">
+	<div class="my-2 flex">
+		<input
+			class="border-primary-500 mx-auto h-8 w-56 rounded-xl border"
+			type="text"
+			on:input={onSearch}
+			bind:value={search}
+			placeholder="Search"
+		/>
 	</div>
 
-	<div class="h-[90%] overflow-auto">
-		<Listgroup active>
-			{#each dbObjectsFiltered.tables as table}
-				<ListgroupItem on:click={() => select100(table.name)} class="gap-2 text-base font-semibold">
+	<ul class="border-primary-500 bg-primary-100 h-[90%] list-inside overflow-auto">
+		{#each dbObjectsFiltered.tables as table}
+			<li class="hover:bg-primary-300 flex justify-start pl-3">
+				<button
+					class="text-primary-500 flex h-6 w-full items-center"
+					on:contextmenu={handleRightClick}
+					on:click={() => select100(table.name)}
+				>
+					<TableRowOutline class="mr-2 size-4 text-center" />
 					{table.name}
-				</ListgroupItem>
-			{/each}
-		</Listgroup>
-	</div>
+				</button>
+			</li>
+		{/each}
+	</ul>
 </div>
 
-<style>
-	.db-explorer {
-		width: 300px;
-		min-width: 200px;
-		margin-right: 10px;
-		overflow: scroll;
-	}
-
-	.db-explorer-search {
-		margin-bottom: 10px;
-	}
-</style>
+{#if contextMenuVisible}
+	<div
+		class="absolute border bg-white"
+		style="top: {contextMenuY}px; left: {contextMenuX}px;"
+		on:click={hideContextMenu}
+	>
+		<p>Context menu item 1</p>
+		<p>Context menu item 2</p>
+		<!-- add more items as needed -->
+	</div>
+{/if}

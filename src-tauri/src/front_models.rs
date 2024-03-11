@@ -44,3 +44,9 @@ pub struct Table {
     pub name: String,
     pub schema: String,
 }
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct QueryResult {
+    pub columns: Vec<String>,
+    pub rows: Vec<Vec<String>>,
+}

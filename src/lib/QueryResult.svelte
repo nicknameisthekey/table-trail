@@ -1,59 +1,41 @@
 <script lang="ts">
-	import { resultStore } from './store';
-	import { onMount } from 'svelte';
-	import {
-		Table,
-		TableBody,
-		TableBodyCell,
-		TableBodyRow,
-		TableHead,
-		TableHeadCell,
-		Checkbox,
-		TableSearch
-	} from 'flowbite-svelte';
+	import type { QueryResultData } from '$lib/models';
+	import { TrashBinOutline } from 'flowbite-svelte-icons';
+	import { createEventDispatcher } from 'svelte';
 
-	let data: Record<string, string>[] = [];
-	let headers: string[] = [];
-
-	onMount(async () => {
-		resultStore.subscribe((v) => OnResult(v));
-	});
-
-	const getUniqueKeys = (data: Record<string, string>[]): string[] => {
-		const keysSet = new Set<string>();
-		data.forEach((item) => {
-			Object.keys(item).forEach((key) => keysSet.add(key));
-		});
-		return Array.from(keysSet);
-	};
-
-	let flattenedData: string[][] = [];
-
-	function OnResult(newData: Record<string, string>[]) {
-		data = newData;
-		headers = getUniqueKeys(data);
-		flattenedData = data.map((item) => Object.values(item));
-
-		console.log(headers);
-		console.log(data);
-	}
+	const dispatch = createEventDispatcher();
+	export let queryResult: QueryResultData;
 </script>
 
-<div>
-	<Table>
-		<TableHead>
-			{#each headers as header}
-			<TableHeadCell>{header}</TableHeadCell>
-			{/each}
-		</TableHead>
-		<TableBody tableBodyClass="divide-y">
-			{#each flattenedData as row}
-			<TableBodyRow>
-				{#each row as cell}
-				<TableBodyCell>{cell}</TableBodyCell>
+<div class="mb-5">
+	<div class="mb-2 flex justify-end">
+		<button
+			on:click={() => dispatch('onDelete', queryResult)}
+			class="text-primary-700 hover:border-primary-700 mr-1 rounded border-2 border-transparent"
+		>
+			<TrashBinOutline class="size-7" />
+		</button>
+	</div>
+	<div class="h-[350px] w-[600px] overflow-scroll">
+		<table class="divide-primary-300 divide-y">
+			<thead class="bg-primary-300">
+				<tr>
+					{#each queryResult.columns as header}
+						<th class="text-primary-500 px-2 py-1 text-left text-xs">
+							{header}
+						</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody class="divide-primary-300 bg-primary-50 divide-y">
+				{#each queryResult.rows as row}
+					<tr>
+						{#each row as cell}
+							<td class="text-s whitespace-nowrap px-1 py-1 text-left"> {cell} </td>
+						{/each}
+					</tr>
 				{/each}
-			</TableBodyRow>
-			{/each}
-		</TableBody>
-	</Table>
+			</tbody>
+		</table>
+	</div>
 </div>

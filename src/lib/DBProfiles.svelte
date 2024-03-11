@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Button, Input, Label, P, Select } from 'flowbite-svelte';
-	import 'flowbite/dist/flowbite.min.css';
+	import { Button, Input, Label, Select } from 'flowbite-svelte';
 	import { Modal } from 'flowbite-svelte';
-	import { CirclePlusOutline } from 'flowbite-svelte-icons';
+	import { PlusSolid, DatabaseSolid } from 'flowbite-svelte-icons';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { chosenProfile } from './store';
 
@@ -77,28 +76,27 @@
 	}
 </script>
 
-<div class="profiles-sidebar h-screen bg-gray-500">
+<ul class="border-primary-500 bg-primary-300 h-screen w-48 list-inside border-r">
 	{#each profiles as profile}
-		<div class="profile-container">
-			<Button
-				color={profile.connected ? 'green' : 'red'}
-				size="xs"
-				class="h-20 w-80"
+		<li class="hover:bg-primary-400 flex justify-start pl-3">
+			<button
+				class="text-primary-500 flex h-6 w-full items-center"
 				on:click={() => onProfileClick(profile)}
 			>
+				<DatabaseSolid class="mr-2 size-4 text-center" />
 				{profile.params.name}
-			</Button>
-		</div>
+			</button>
+		</li>
 	{/each}
-
-	<div class="profile-container">
-		<Button color="light" size="xs" class="h-20 w-80" on:click={() => (modalOpened = true)}>
-			<CirclePlusOutline
-				class="h-12 w-12 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-			/>
-		</Button>
-	</div>
-</div>
+	<li class="border-primary-500 mt-3 flex h-8 items-center justify-center border-t">
+		<button
+			class="text-primary-500 hover:border-primary-500 p mr-2 rounded border border-transparent p-1 hover:border"
+			on:click={() => (modalOpened = true)}
+		>
+			<PlusSolid class="size-4" />
+		</button>
+	</li>
+</ul>
 
 <Modal title="Add profile" bind:open={modalOpened} autoclose>
 	<Select id="countries" class="mt-2" bind:value={addProfileModalState.params.database_type}>
@@ -166,22 +164,3 @@
 		<Button on:click={addProfile} class="mx-auto w-1/2">Add</Button>
 	</svelte:fragment>
 </Modal>
-
-<style>
-	.profiles-sidebar {
-		width: 120px;
-		margin-right: 10px;
-		padding-right: 5px;
-		border-right: solid 1px black;
-	}
-
-	.profile-container {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		padding-left: 2px;
-		padding-right: 2px;
-		margin-bottom: 3px;
-	}
-</style>

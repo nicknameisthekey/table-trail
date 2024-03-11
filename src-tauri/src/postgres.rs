@@ -1,10 +1,7 @@
-use std::{any::Any, collections::HashMap, ops::Deref};
+use std::collections::HashMap;
 
 use futures::TryStreamExt;
-use sqlx::{
-    postgres::{PgPoolOptions, PgTypeKind, PgValueRef},
-    Column, Row, TypeInfo,
-};
+use sqlx::{postgres::PgPoolOptions, Column, Row, TypeInfo};
 
 #[derive(Debug)]
 pub struct PGTable {
@@ -13,7 +10,7 @@ pub struct PGTable {
     pub user_defined: bool,
 }
 
-pub async fn tables<'a>() -> Result<Vec<PGTable>, sqlx::Error> {
+pub async fn _tables<'a>() -> Result<Vec<PGTable>, sqlx::Error> {
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect("postgres://postgres:admin@localhost")
@@ -52,7 +49,7 @@ pub async fn tables<'a>() -> Result<Vec<PGTable>, sqlx::Error> {
     Ok(result)
 }
 
-pub async fn send_query<'a>(query: String) -> Result<Vec<HashMap<String, String>>, sqlx::Error> {
+pub async fn _send_query<'a>(query: String) -> Result<Vec<HashMap<String, String>>, sqlx::Error> {
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect("postgres://postgres:admin@localhost")

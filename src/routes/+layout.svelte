@@ -1,24 +1,26 @@
 <script lang="ts">
 	import '../app.pcss';
-	import DBExplorer from '$lib/DBExplorer.svelte';
 	import QueryEditor from '$lib/QueryEditor.svelte';
-	import QueryResult from '$lib/QueryResult.svelte';
-	import DbConnections from '$lib/DBConnections.svelte';
+	import QueryResults from '$lib/QueryResults.svelte';
+	import DBProfiles from '$lib/DBProfiles.svelte';
 	import DbExplorer from '$lib/DBExplorer.svelte';
+	import QueryTabs from '$lib/QueryTabs.svelte';
 </script>
 
-<div class="main-window bg-gray-500">
-	<DbConnections />
-	<DbExplorer />
-	<QueryEditor />
-	<QueryResult />
+<div class="bg-primary-100 flex h-full w-full flex-col items-start font-sans">
+	<div class="grid w-full grid-cols-[auto,1fr]">
+		<div>
+			<DBProfiles />
+		</div>
+		<div>
+			<div class="inline-block w-full">
+				<QueryTabs />
+			</div>
+			<div class="flex flex-row">
+				<DbExplorer />
+				<QueryEditor />
+				<QueryResults />
+			</div>
+		</div>
+	</div>
 </div>
-
-<style>
-	.main-window {
-		display: flex;
-		align-items: flex-start;
-		flex-direction: row;
-		padding-top: 6px;
-	}
-</style>
