@@ -7,7 +7,7 @@
 	import QueryTabs from '$lib/QueryTabs.svelte';
 </script>
 
-<div class="bg-primary-100 flex h-full w-full flex-col items-start font-sans">
+<div class="flex h-full w-full flex-col items-start bg-primary-100 font-sans">
 	<div class="grid w-full grid-cols-[auto,1fr]">
 		<div>
 			<DBProfiles />
