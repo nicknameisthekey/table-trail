@@ -14,7 +14,7 @@
 		if (newData.intial) return;
 
 		console.log('Получен результат', newData);
-		queriyResults = [...queriyResults, newData];
+		queriyResults = [newData, ...queriyResults];
 	}
 
 	function onDelete(resultToDelete: CustomEvent<QueryResultData>) {
