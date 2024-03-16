@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Button, Input, Label, Select } from 'flowbite-svelte';
 	import { Modal } from 'flowbite-svelte';
-	import { PlusSolid, DatabaseSolid, DotsVerticalSolid } from 'flowbite-svelte-icons';
+	import { PlusSolid, DatabaseSolid } from 'flowbite-svelte-icons';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { chosenProfile } from './store';
 	import DbProfileContextMenu from './DbProfileContextMenu.svelte';
@@ -125,11 +125,6 @@
 			>
 				<DatabaseSolid class="mr-2 size-4 text-center" />
 				{profile.params.name}
-			</button>
-			<button
-				class="invisible items-end rounded border border-transparent hover:border hover:border-primary-500 group-hover:visible"
-			>
-				<DotsVerticalSolid />
 			</button>
 		</li>
 	{/each}
