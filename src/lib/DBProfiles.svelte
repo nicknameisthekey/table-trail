@@ -103,7 +103,7 @@
 			Y: event.clientY,
 			Opened: true,
 			Options: [
-				{ text: 'Edit', callback: () => onEdit(profile) },
+				//{ text: 'Edit', callback: () => onEdit(profile) }, todo
 				{
 					text: 'Delete',
 					callback: () => {
