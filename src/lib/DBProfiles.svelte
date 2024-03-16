@@ -89,6 +89,12 @@
 		console.log(profile);
 	}
 
+	async function onDeleteProfile(profile: ConnectionProfile) {
+		await invoke('delete_profile', { profile_id: profile.id });
+
+		await fetchProfiles();
+	}
+
 	function onProfileOptionsClick(event: MouseEvent, profile: ConnectionProfile) {
 		event.preventDefault();
 
@@ -98,7 +104,12 @@
 			Opened: true,
 			Options: [
 				{ text: 'Edit', callback: () => onEdit(profile) },
-				{ text: 'Delete', callback: () => {} }
+				{
+					text: 'Delete',
+					callback: () => {
+						onDeleteProfile(profile);
+					}
+				}
 			]
 		};
 	}

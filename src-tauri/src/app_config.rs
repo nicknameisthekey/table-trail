@@ -1,5 +1,5 @@
-use crate::App;
 use crate::front_models;
+use crate::App;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -28,5 +28,11 @@ pub async fn add_profile(
     profile: front_models::ConnectionProfile,
 ) -> Result<(), ()> {
     app.add_profile(profile).await;
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn delete_profile(app: State<'_, App>, profile_id: i64) -> Result<(), ()> {
+    app.delete_profile(profile_id).await;
     Ok(())
 }

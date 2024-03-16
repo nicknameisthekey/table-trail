@@ -17,6 +17,7 @@ fn main() {
             app::send_query,
             app_config::connection_profiles,
             app_config::add_profile,
+            app_config::delete_profile,
             app::db_objects
         ])
         .run(tauri::generate_context!())

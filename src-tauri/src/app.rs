@@ -114,6 +114,21 @@ impl App {
         r.unwrap();
     }
 
+    pub async fn delete_profile(&self, profile_id: i64) {
+        let pool = Arc::clone(&self.app_config);
+
+        let r = sqlx::query(
+            r#"
+            DELETE FROM connection_params WHERE id = ?
+            "#,
+        )
+        .bind(profile_id)
+        .execute(&*pool)
+        .await;
+
+        r.unwrap();
+    }
+
     pub async fn connection_profiles(&self) -> Vec<crate::front_models::ConnectionProfile> {
         let pool = Arc::clone(&self.app_config);
 
