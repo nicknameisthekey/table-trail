@@ -10,7 +10,6 @@
 	let editorContainer: HTMLElement;
 	let uri: Monaco.Uri;
 	let currentProfile: number;
-
 	type QueryResult = { columns: string[]; rows: string[][] };
 
 	onMount(async () => {
